@@ -4,7 +4,7 @@ import json
 
 # reddit credentials file should be placed outside of 
 # class exercises directory and should NOT be pushed to github
-REDDIT_CREDENTIALS_FILE = "C:\Users\jackw\OneDrive\Documents\02a_MachineLearningInPython\reddit_credentials.json"
+REDDIT_CREDENTIALS_FILE = (r"C:\Users\jackw\OneDrive\Documents\02a_MachineLearningInPython\reddit_credentials.json")
 
 # This function gets the access token for Reddit API calls 
 # It uses the Reddit Credentials file to authenticate
