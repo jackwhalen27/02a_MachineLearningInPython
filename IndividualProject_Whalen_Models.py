@@ -147,4 +147,19 @@ print(metrics.f1_score(y_test, y_pred_rf_grid))
 #FINAL CHOSEN MODEL: LogisticRegression
 model_vF = grid2
 predictions_vF = y_pred_grid2
+accuracy_vF = metrics.accuracy_score(y_test, y_pred_grid2)
+f1_vF = metrics.f1_score(y_test, y_pred_grid2)
 
+import pickle
+
+with open('model.pickle', 'wb') as f:
+    pickle.dump(model_vF, f)
+
+with open('predictions.pickle', 'wb') as f:
+    pickle.dump(predictions_vF, f)
+
+with open('scores.pickle', 'wb') as f:
+    pickle.dump((accuracy_vF, f1_vF), f)
+
+with open('vectorizer', 'wb') as f:
+    pickle.dump(vectorizer, f)
