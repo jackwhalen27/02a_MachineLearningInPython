@@ -10,6 +10,11 @@ test = pd.read_csv("MedsTest.csv")
 test['Review'] = test['benefits_review'] + ' ' + test['side_effects_review'] + ' ' + test['comments_review']
 test['BinSentiment'] = test['rating'].apply(lambda x: 1 if x > 5 else 0)
 
+#Create example table globally
+Example = test.iloc[:, : 4].sample(n=1, random_state=1234)
+    
+ExampleDF = pd.DataFrame(Example)
+
 #Load model and results using Pickle
 with open('model.pickle', 'rb') as f:
     model = pickle.load(f)
@@ -38,7 +43,7 @@ def sentiment(text):
 def ind_assgn_app():
 
     #Introduction and problem description
-    st.title("Medication Sentiment Classification Model")
+    st.title("Medication Sentiment Classification Model (By Jack Whalen)")
     
     st.header("Problem Description:")
     st.write("For this assignment, we were tasked with creating non-deep learning models to accurately predict sentiment towards medications based on text reviews and numeric ratings. Data to analyze included comments on medication benefits, comments on side effects, general comments, and a rating for the drug overall between 1 and 10.")
@@ -47,18 +52,15 @@ def ind_assgn_app():
     #examples of medication reviews
     st.header("Review Example:")
     st.subheader("A review found in the dataset will look like the following:")
-    st.write("Benefits Review: " + test['benefits_review']).sample(n=1, random_state=1234)
-    st.write("Side Effects Review: " + test['side_effects_review']).sample(n=1, random_state=1234)
-    st.write("General Comments: " + test['comments_review']).sample(n=1, random_state=1234)
-    st.write("1-10 Rating: " + test['rating']).sample(n=1, random_state=1234)
+    st.table(ExampleDF)
 
     #Data Breakdown:
     st.header("Dataset Breakdown and Summary:")
     st.subheader("Below are summary statistics of the dataset used for training and validating the model:")
-    st.write("Total Number of Reviews: " + len(test))
-    st.write("Count of Positive Reviews: " + sum(test['BinSentiment']==1))
-    st.write("Count of Negative Reviews: " + sum(test['BinSentiment']==0))
-    st.write("Ratio of Positive to Negative Reviews: " + (sum(test['BinSentiment']==1))/len(test))
+    st.write("Total Number of Reviews: " + str(len(test)))
+    st.write("Count of Positive Reviews: " + str(sum(test['BinSentiment']==1)))
+    st.write("Count of Negative Reviews: " + str(sum(test['BinSentiment']==0)))
+    st.write("Ratio of Positive to Negative Reviews: " + str((sum(test['BinSentiment']==1))/len(test))[:6])
 
     #Preprocessing and Vectorization steps:
     st.header("Text Preprocessing and Data Tokenization using TF-IDF:")
@@ -102,4 +104,5 @@ def ind_assgn_app():
         else:
             st.write("This review is: Negative")
 
-
+if __name__ == "__main__":
+    ind_assgn_app()
