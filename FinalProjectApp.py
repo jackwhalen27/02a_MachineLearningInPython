@@ -26,6 +26,8 @@ import datetime as dt
 from datetime import datetime, timedelta
 import schedule
 import time
+import threading
+
 
 # Define the contents of the "Home" tab
 def home():
@@ -67,7 +69,7 @@ def home():
         image = Image.open(images["Gabriel Kusiatin"]["path"])
         st.image(image)
         st.markdown(f"[{list(images.keys())[0]}]({images['Gabriel Kusiatin']['link']})")
-    
+   
     with col2:
         image = Image.open(images["Jack Whalen"]["path"])
         st.image(image)
@@ -77,12 +79,12 @@ def home():
         image = Image.open(images["Abe Zaidman"]["path"])
         st.image(image)
         st.markdown(f"[{list(images.keys())[2]}]({images['Abe Zaidman']['link']})")
-    
+   
     with col4:
         image = Image.open(images["Kayvan Khoobehi"]["path"])
         st.image(image)
         st.markdown(f"[{list(images.keys())[3]}]({images['Kayvan Khoobehi']['link']})")
-    
+   
     with col5:
         image = Image.open(images["Daniel Cohen"]["path"])
         st.image(image)
@@ -144,6 +146,7 @@ def google_cloud():
     # Join tokens into string and return
         return ' '.join(tokens)
     df1['text'] = df1['text'].apply(preprocess_text)
+    @st.cache_data()
     def analyze_sentiment(text):
         sia = SentimentIntensityAnalyzer()
         sentiment = sia.polarity_scores(text)['compound']
@@ -178,8 +181,8 @@ def google_cloud():
     test_f1_score = f1_score(df2['sentiment'], y_pred, pos_label='positive')
     st.write(f"Accuracy: {test_accuracy}")
     st.write(f"F1_Score: {test_f1_score}")
-
-    # Define a function to run the code
+     # Define a function to run the code
+    @st.cache_data()
     def update_dataframe():
         # Load the existing dataframe or create a new one if it doesn't exist
         try:
@@ -199,6 +202,9 @@ def google_cloud():
 
         # save the updated dataframe to a csv file
         performance_by_date.to_csv('performance_by_date.csv', index=False)
+        return performance_by_date
+   
+    update_dataframe()
 
     # Define a function to schedule the update_dataframe function to run at 8:10am every day
     def schedule_update():
@@ -207,11 +213,20 @@ def google_cloud():
         while True:
             schedule.run_pending()
             time.sleep(1)
+   
+    threading.Thread(target=schedule_update).start()
 
-    # Call the function to schedule the update
-    schedule_update()
-    df_model = pd.DataFrame('performance_by_date.csv')
+    df_model = update_dataframe()
     st.dataframe(df_model)
+    # Convert the 'created_utc' column to datetime format
+    df_model['created_utc'] = pd.to_datetime(df_model['created_utc'])
+
+    # Set the 'created_utc' column as the index of the dataframe
+    df_model.set_index('created_utc', inplace=True)
+
+    # Create a line graph that shows the accuracy and F1 score as a function of the date
+    st.line_chart(df_model[['accuracy', 'f1_score']])
+
 
     # Create the tabs
 tabs = ["Home", "Model Training", "Model Prediction and Results", "Google Cloud Data Automation"]
@@ -226,4 +241,3 @@ elif page == "Model Prediction and Results":
     model_prediction()
 elif page == "Google Cloud Data Automation":
     google_cloud()
-
